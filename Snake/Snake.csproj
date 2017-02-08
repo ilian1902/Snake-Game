@@ -23,22 +23,21 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="app.css" />
+    <Content Include="Audio\foot.wav" />
+    <Content Include="Audio\gameMenu.wav" />
+    <Content Include="Audio\gameOver.wav" />
+    <Content Include="Audio\movement.wav" />
     <Content Include="Images\button.png" />
-    <Content Include="Images\grass.jpg" />
-    <Content Include="Images\iron.jpg" />
     <Content Include="Images\main-snake.jpg" />
-    <Content Include="Images\menu-new-game.png" />
-    <Content Include="Images\monster.jpg" />
     <Content Include="Images\red_ball.png" />
     <Content Include="Images\sky.jpg" />
-    <Content Include="Images\wood.jpg" />
-    <Content Include="Images\wooden.jpg" />
     <Content Include="index.html" />
     <Content Include="phaser.js" />
     <Content Include="web.config" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
+    <TypeScriptCompile Include="Constants\StateConstants.ts" />
     <TypeScriptCompile Include="GameObjects\Apple.ts" />
     <TypeScriptCompile Include="GameObjects\Player.ts" />
     <TypeScriptCompile Include="p2.d.ts" />

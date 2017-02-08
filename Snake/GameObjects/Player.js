@@ -9,14 +9,11 @@ var GameFromScrach;
         __extends(Player, _super);
         function Player(game, x, y, spriteName) {
             _super.call(this, game, x, y, spriteName);
-            this.numSnakeBodyStart = 4;
-            this.snakeSpacer = 6;
             this.speed = 0;
             this.score = 0;
             this.snakeBody = [];
             this.snakeBody.push(game.add.sprite(x, y, spriteName));
             this.snakeHead = this.snakeBody[0];
-            this.snakePath = [];
             this.lastX = this.snakeBody[this.snakeBody.length - 1].x;
             this.lastY = this.snakeBody[this.snakeBody.length - 1].y;
             this.updateDelay = 0;

@@ -1,5 +1,10 @@
 ﻿module GameFromScrach {
     export class GamePlayState extends Phaser.State {
+
+        START_POSITION: number = 150;
+        SQUARE_SIZE: number = 15;
+        level: number = 1;
+
         game: Phaser.Game;
         cursors: Phaser.CursorKeys;
         snake: Player;
@@ -11,9 +16,8 @@
         levelTextValue: Phaser.Text;
         addNew: boolean;
         playScreenImage: Phaser.Sprite;
-        squareSize: number = 15;
-        startPosition: number = 150;
-        level: number = 1;
+        food: Phaser.Sound;
+        moveSound: Phaser.Sound;
 
         constructor() {
             super();
@@ -29,19 +33,12 @@
             this.addNew = false;
             this.cursors = this.game.input.keyboard.createCursorKeys();
             //this.checkScreen();
-            this.snake = new Player(this.game, this.startPosition, this.startPosition, 'snake');
+            this.snake = new Player(this.game, this.START_POSITION, this.START_POSITION, 'snake');
             
             // Initial snake
             for (var i = 1; i < 5; i++) {
-                this.snake.snakeBody[i] = this.game.add.sprite(this.startPosition + i * this.squareSize, this.startPosition, 'snake');  // Parameters are (X coordinate, Y coordinate, image)
+                this.snake.snakeBody[i] = this.game.add.sprite(this.START_POSITION + i * this.SQUARE_SIZE, this.START_POSITION, 'snake');
             }
-            
-
-            //this.snake.snakeHead.anchor.setTo(0.5, 0.5);
-            //this.game.physics.enable(this.snake.snakeHead, Phaser.Physics.ARCADE);
-            
-            //this.InitSnakeBodyArray();           
-            //this.InitSnakePathArray();
 
             // Style for text
             this.textStyle_Key = { font: "bold 14px sans-serif", fill: "#46c0f9", align: "center" };
@@ -60,41 +57,15 @@
             this.levelTextValue = this.game.add.text(280, 18, this.level.toString(), this.textStyle_Value);
             
             this.game.physics.enable(this.snake.snakeHead, Phaser.Physics.ARCADE);
-           
-            //this.snake.snakeHead.body.enable = true;
-            //this.snake.snakeHead.checkWorldBounds = true;
-            //this.snake.snakeHead.events.onOutOfBounds.add(this.wallCollision, this);
-            
+
+            // Sounds
+            this.food = this.game.sound.add('food', 1, false, true);
+            this.moveSound = this.game.sound.add('move', 0.5, true, true);
+            this.moveSound.play();
             this.generateApple();
         }
 
-        preLoad() {
-            
-        }
-
         update() {
-            //this.snake.snakeHead.body.velocity.setTo(0, 0);
-            //this.snake.snakeHead.body.angularVelocity = 0;
-            //
-            //if (this.cursors.up.isDown) { //tuk spira igrata ako mahna ifa tragva sama
-            //    this.snake.snakeHead.body.velocity.copyFrom(this.game.physics.arcade.velocityFromAngle(this.snake.snakeHead.angle, (this.snake.speed * 100)));
-            //
-            //    this.InitSnakePathArray()
-            //    this.drawSnake();
-            //    console.log(this.snake.snakeBody.length)
-            //    console.log(this.snake.snakePath.length)
-            //    for (var i = 1; i <= this.snake.snakeBody.length - 1; i++) {
-            //        this.snake.snakeBody[i].x = (this.snake.snakePath[i * this.snake.snakeSpacer]).x;
-            //        this.snake.snakeBody[i].y = (this.snake.snakePath[i * this.snake.snakeSpacer]).y;
-            //    }
-            //    
-            //}
-            //
-            
-
-            //----------------------------------------------------------------------------------
-
-            //this.checkScreen();
 
             if (this.cursors.right.isDown && this.snake.direction != 'left') {
                 this.snake.newDirection = 'right';
@@ -131,26 +102,24 @@
                     this.snake.newDirection = null;
                 }
 
-
                 // Change the last cell's coordinates relative to the head of the snake, according to the direction.
 
                 if (this.snake.direction == 'right') {
-                    lastCell.x = firstCell.x + 15;
+                    lastCell.x = firstCell.x + this.SQUARE_SIZE;
                     lastCell.y = firstCell.y;
                 }
                 else if (this.snake.direction == 'left') {
-                    lastCell.x = firstCell.x - 15;
+                    lastCell.x = firstCell.x - this.SQUARE_SIZE;
                     lastCell.y = firstCell.y;
                 }
                 else if (this.snake.direction == 'up') {
                     lastCell.x = firstCell.x;
-                    lastCell.y = firstCell.y - 15;
+                    lastCell.y = firstCell.y - this.SQUARE_SIZE;
                 }
                 else if (this.snake.direction == 'down') {
                     lastCell.x = firstCell.x;
-                    lastCell.y = firstCell.y + 15;
+                    lastCell.y = firstCell.y + this.SQUARE_SIZE;
                 }
-
 
                 // Place the last cell in the front of the stack.
                 // Mark it the first cell.
@@ -167,136 +136,44 @@
                 this.selfCollision(firstCell);
                 this.wallCollision(firstCell);
             }
-            //----------------------------------------------------------------------------------
-
-           // if (this.cursors.left.isDown) {
-           //     this.snake.snakeHead.body.angularVelocity = -300;
-           // }
-           // else if (this.cursors.right.isDown) {
-           //     this.snake.snakeHead.body.angularVelocity = 300;
-           // }
-           // this.game.physics.arcade.collide(this.apple, this.snake.snakeHead, this.appleCollision, null, this);
-           // this.checkForCollision(this.apple);
-  
         }
 
         generateApple() {
+
             // Chose a random place on the grid.
-            
-            var randomX = Math.floor(Math.random() * 40) * this.squareSize,
-                randomY = Math.floor(Math.random() * 30) * this.squareSize;
+            var randomX = Math.floor(Math.random() * 40) * this.SQUARE_SIZE,
+                randomY = Math.floor(Math.random() * 30) * this.SQUARE_SIZE;
 
             // Add a new apple.
             this.apple = new Apple(this.game, randomX, randomY);
         }
 
-        checkScreen() {
-            switch (this.level) {
-                case 1: this.playScreenImage = this.add.sprite(0, 0, 'iron');
-                    this.playScreenImage.scale.setTo(this.game.width / this.playScreenImage.width,
-                        this.game.height / this.playScreenImage.height);
-                    break;
-                case 2: this.playScreenImage = this.add.sprite(0, 0, 'scene');
-                    this.playScreenImage.scale.setTo(this.game.width / this.playScreenImage.width,
-                        this.game.height / this.playScreenImage.height);
-                    break;
-            }
-        }
-
-        addBodySnake() {
-            this.snake.snakeBody.push(this.game.add.sprite(this.snake.snakeBody[this.snake.snakeBody.length - 1].x, this.snake.snakeBody[this.snake.snakeBody.length - 1].y, 'ball'));
-
-            this.game.physics.arcade.enable(this.snake.snakeBody);
-            this.game.physics.arcade.collide(this.snake.snakeHead, this.snake.snakeBody, this.selfCollision, null, this);
-            this.snake.snakeBody[this.snake.snakeBody.length-1].anchor.setTo(0.5, 0.5);
-            //console.log(this.snake.snakeBody.length);
-            this.drawSnake()
-            this.snake.snakePath.unshift(this.game.add.sprite(this.snake.snakeBody[this.snake.snakeBody.length - 1].x, this.snake.snakeBody[this.snake.snakeBody.length - 1].y, 'ball'));
-            
-        }
-
         appleCollision() {
-            //this.apple.killApple();
-            //this.snake.score++;
-            //this.scoreTextValue.text = this.snake.score.toString();
-            //this.addNew = true;
-            ////this.addBodySnake();
-            //this.generateApple();
-            ////this.addBodySnake();
-
-
             for (var i = 0; i < this.snake.snakeBody.length; i++) {
                 if (this.snake.snakeBody[i].x == this.apple.x && this.snake.snakeBody[i].y == this.apple.y) {
-
-                    // Next time the snake moves, a new block will be added to its length.
+                    this.food.play();
                     this.addNew = true;
-
-                    // Destroy the old apple.
                     this.apple.killApple();
-
-                    // Make a new one.
                     this.generateApple();
-
-                    // Increase score.
                     this.snake.score++;
-
-                    // Refresh scoreboard.
                     this.scoreTextValue.text = this.snake.score.toString();
-
                 }
             }
         }
 
         selfCollision(head) {
-            // Check if the head of the snake overlaps with any part of the snake.
             for (var i = 0; i < this.snake.snakeBody.length - 1; i++) {
                 if (head.x == this.snake.snakeBody[i].x && head.y == this.snake.snakeBody[i].y) {
-           
-                    // If so, go to game over screen.
                     this.game.state.start('GameOverState');
+                    this.moveSound.stop();
                 }
             }
         }
         
         wallCollision(head) {
-            if (head.x >= 600 || head.x < 0 || head.y >= 450 || head.y < 0) {
-                
+            if (head.x >= this.game.canvas.width || head.x < 0 || head.y >= this.game.canvas.height || head.y < 0) {
                 this.game.state.start('GameOverState');
-            }
-            
-        }
-
-        checkForCollision(apple) {
-            // check for collide
-            this.game.physics.enable(apple, Phaser.Physics.ARCADE);
-            apple.body.collideWorldBounds = true;
-            apple.body.checkCollision.up = true;
-            apple.body.checkCollision.down = true;
-            apple.body.checkCollision.left = true;
-            apple.body.checkCollision.right = true;
-            apple.body.immovable = true;
-        }
-
-        drawSnake() {
-            var part = this.snake.snakePath.pop();
-            part.setTo(this.snake.snakeHead.x, this.snake.snakeHead.y);
-            //part.setTo(this.snake.snakeBody[this.snake.snakeBody.length - 1].x, this.snake.snakeBody[this.snake.snakeBody.length-1].y);
-
-            this.snake.snakePath.unshift(part);
-        }
-
-        InitSnakePathArray() {// todo
-            for (var i = 0; i <= (this.snake.snakeBody.length - 1) * this.snake.snakeSpacer; i++) {
-                this.snake.snakePath[i] = new Phaser.Point(this.snake.lastX, this.snake.lastY);
-            }
-        }
-
-        InitSnakeBodyArray() {
-            //this.snake.snakeBody[this.snake.snakeBody.length - 1] = this.game.add.sprite(this.snake.snakeHead.x, this.snake.snakeHead.y, 'ball');
-            //this.snake.snakeBody[this.snake.snakeBody.length - 1].anchor.setTo(0.5, 0.5);
-            for (var i = 1; i <= this.snake.numSnakeBodyStart - 1; i++) {
-                this.snake.snakeBody[i] = this.game.add.sprite(this.snake.snakeHead.x, this.snake.snakeHead.y, 'ball');
-                this.snake.snakeBody[i].anchor.setTo(0.5, 0.5);
+                this.moveSound.stop();
             }
         }
     }
