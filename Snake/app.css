@@ -1,0 +1,11 @@
+﻿body {
+    font-family: 'Segoe UI', sans-serif;
+}
+
+span {
+    font-style: italic;
+}
+#snake{
+    margin-left: 18%;
+    width: 65%;
+}
